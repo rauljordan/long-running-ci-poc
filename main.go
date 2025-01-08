@@ -10,3 +10,7 @@ func main() {
 func add(x int, y int) int {
 	return x + y
 }
+
+func mul(x int, y int) int {
+	return x * y
+}

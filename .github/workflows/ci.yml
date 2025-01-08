@@ -1,0 +1,86 @@
+name: Go tests CI
+run-name: Go tests CI triggered from @${{ github.actor }} of ${{ github.head_ref }}
+
+on:
+  workflow_dispatch:
+  merge_group:
+  pull_request:
+  push:
+    branches:
+      - master
+      - develop
+  schedule:
+    # Run at 12:00 PM Eastern Time (17:00 UTC)
+    - cron: '0 17 * * *'
+
+jobs:
+  regular-tests:
+    name: Regular Tests
+    # Run on every trigger EXCEPT schedule
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-8
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          
+      - name: Install go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.23.x
+          
+      - name: Run normal tests
+        run: go test --cover ./...
+        
+  challenge-tests-scheduled:
+    name: Challenge Tests (Scheduled)
+    runs-on: ubuntu-8
+    # Only run on schedule AND master branch
+    if: github.event_name == 'schedule' && github.ref == 'refs/heads/master'
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          
+      - name: Install go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.23.x
+          
+      - name: Run challenge tests
+        run: go test --tags challengetest --timeout 60m --cover ./...
+
+  challenge-tests-pr:
+    name: Challenge Tests (PR)
+    runs-on: ubuntu-8
+    if: github.event_name == 'pull_request'
+    
+    # Only run this job if files in staker/bold/ are modified
+    permissions:
+      pull-requests: read
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          
+      - name: Check changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v41
+        with:
+          files: staker/bold/**
+          
+      - name: Install go if files changed
+        if: steps.changed-files.outputs.any_changed == 'true'
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.23.x
+          
+      - name: Run challenge tests if files changed
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: go test --tags challengetest --timeout 60m --cover ./...

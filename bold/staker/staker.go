@@ -15,3 +15,7 @@ func (s *Staker) Foo() {
 func (s *Staker) Bar() string {
 	return "Bar"
 }
+
+func (s *Staker) Baz() string {
+	return "Baz"
+}

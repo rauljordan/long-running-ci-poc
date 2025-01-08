@@ -7,8 +7,7 @@ on:
   pull_request:
   push:
     branches:
-      - master
-      - develop
+      - main
   schedule:
     # Run at 12:00 PM Eastern Time (17:00 UTC)
     - cron: '0 17 * * *'
@@ -37,8 +36,8 @@ jobs:
   challenge-tests-scheduled:
     name: Challenge Tests (Scheduled)
     runs-on: ubuntu-8
-    # Only run on schedule AND master branch
-    if: github.event_name == 'schedule' && github.ref == 'refs/heads/master'
+    # Only run on schedule AND main branch
+    if: github.event_name == 'schedule' && github.ref == 'refs/heads/main'
     
     steps:
       - name: Checkout

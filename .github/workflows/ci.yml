@@ -73,7 +73,7 @@ jobs:
         id: changed-files
         uses: tj-actions/changed-files@v41
         with:
-          files: staker/bold/**
+          files: bold/staker/**
           
       - name: Install go if files changed
         if: steps.changed-files.outputs.any_changed == 'true'
